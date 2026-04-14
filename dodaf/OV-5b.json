@@ -1,0 +1,51 @@
+{
+  "viewId": "open-banking.OV-5b",
+  "viewType": "OV-5b",
+  "title": "Operational Activity Model",
+  "did": "did:web:open-banking.gftd.ai",
+  "format": "json",
+  "content": {
+    "activities": [
+      {
+        "id": "act.openAccount",
+        "name": "Open Account",
+        "type": "bpmn",
+        "bpmnProcessKey": "openAccount",
+        "source": "bpmn/open-account.bpmn",
+        "realisedBy": [
+          { "xrpc": "ai.gftd.apps.openBanking.createAccount" },
+          { "form": "openBanking.openAccount.v1" }
+        ]
+      },
+      {
+        "id": "act.transfer",
+        "name": "Transfer Funds",
+        "type": "bpmn",
+        "bpmnProcessKey": "transfer",
+        "source": "bpmn/transfer.bpmn",
+        "realisedBy": [
+          { "xrpc": "ai.gftd.apps.openBanking.transfer" },
+          { "form": "openBanking.transfer.v1" },
+          { "dmn":  "openBanking.transferEligibility" }
+        ]
+      },
+      {
+        "id": "act.queryBalance",
+        "name": "Query Balance / Transactions",
+        "type": "xrpc",
+        "realisedBy": [
+          { "xrpc": "ai.gftd.apps.openBanking.getAccount" },
+          { "xrpc": "ai.gftd.apps.openBanking.listAccounts" },
+          { "xrpc": "ai.gftd.apps.openBanking.listTransactions" }
+        ]
+      }
+    ]
+  },
+  "refs": {
+    "bpmnProcessKeys": ["openAccount", "transfer"],
+    "dmnDecisionKeys": ["openBanking.transferEligibility"],
+    "formKeys": ["openBanking.openAccount.v1", "openBanking.transfer.v1"],
+    "viewIds": ["open-banking.OV-6a", "open-banking.SV-1"]
+  },
+  "version": 1
+}

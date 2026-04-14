@@ -107,6 +107,41 @@ wrangler deploy
 
 Route: `open-banking.gftd.ai/*` (adjust `routes` in `wrangler.jsonc` for your zone).
 
+## DoDAF v2 / BPMN / DMN / Forms
+
+This repo ships as a fully **DoDAF v2.02-compliant** architecture description, with executable artefacts:
+
+| DoDAF view | File | Ref |
+|---|---|---|
+| AV-1 Overview & Summary | [`dodaf/AV-1.json`](./dodaf/AV-1.json) | — |
+| OV-1 High-Level Operational Concept | [`dodaf/OV-1.json`](./dodaf/OV-1.json) | — |
+| OV-5b Operational Activity Model | [`dodaf/OV-5b.json`](./dodaf/OV-5b.json) | → BPMN |
+| OV-6a Operational Rules Model | [`dodaf/OV-6a.json`](./dodaf/OV-6a.json) | → DMN |
+| CV-2 Capability Taxonomy | [`dodaf/CV-2.json`](./dodaf/CV-2.json) | — |
+| SV-1 Systems Interface Description | [`dodaf/SV-1.json`](./dodaf/SV-1.json) | — |
+
+| BPMN 2.0 process | File | Camunda process key |
+|---|---|---|
+| Open Account | [`bpmn/open-account.bpmn`](./bpmn/open-account.bpmn) | `openAccount` |
+| Transfer | [`bpmn/transfer.bpmn`](./bpmn/transfer.bpmn) | `transfer` |
+
+| DMN 1.3 decision | File | Decision key |
+|---|---|---|
+| Transfer eligibility | [`dmn/transfer-eligibility.dmn`](./dmn/transfer-eligibility.dmn) | `openBanking.transferEligibility` |
+
+| Camunda form | File | Form key |
+|---|---|---|
+| Open Account | [`forms/openAccount.form.json`](./forms/openAccount.form.json) | `openBanking.openAccount.v1` |
+| Transfer | [`forms/transfer.form.json`](./forms/transfer.form.json) | `openBanking.transfer.v1` |
+
+**Runtime registration**: at cold start the Worker pushes all of the above to the GFTD platform registries via:
+- `ai.gftd.dodafv2.deployView` (per DoDAF view)
+- `ai.gftd.bpmn.deployProcess` (per BPMN XML)
+- `ai.gftd.dmn.evaluate` (inline XML on first decision call)
+- `ai.gftd.form.register` (per Camunda form)
+
+See [`worker/src/dodaf-bootstrap.ts`](./worker/src/dodaf-bootstrap.ts). In standalone mode (no `PDS` binding), this is a no-op and the artefacts remain readable via `GET /dodaf`, `GET /forms`, `GET /bpmn/*`, `GET /dmn/*` on the Worker itself.
+
 ## Integration with GFTD stack (optional)
 
 In the GFTD monorepo, this app lives at `60-apps/ai-gftd-project-open-banking/` and can be wired to:

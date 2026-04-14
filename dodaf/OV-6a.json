@@ -1,0 +1,47 @@
+{
+  "viewId": "open-banking.OV-6a",
+  "viewType": "OV-6a",
+  "title": "Operational Rules Model",
+  "did": "did:web:open-banking.gftd.ai",
+  "format": "json",
+  "content": {
+    "businessRules": [
+      {
+        "id": "rule.ledgerBalance",
+        "statement": "For any account, balance := Σ(credit.amount) − Σ(debit.amount). No balance is stored on the account row.",
+        "kind": "invariant",
+        "enforcedBy": "derived query in worker/src/app.ts:balanceOf()"
+      },
+      {
+        "id": "rule.doubleEntry",
+        "statement": "Every transfer writes exactly one debit + one credit sharing the same transactionId, within a single D1 batch().",
+        "kind": "invariant",
+        "enforcedBy": "worker/src/app.ts:transfer() uses env.BANK_DB.batch()"
+      },
+      {
+        "id": "rule.transferEligibility",
+        "statement": "A transfer is approved only when both accounts are active, currencies match, balance suffices. Amount ≥ 1,000,000 requires step-up auth.",
+        "kind": "decisionTable",
+        "dmnDecisionKey": "openBanking.transferEligibility",
+        "source": "dmn/transfer-eligibility.dmn"
+      },
+      {
+        "id": "rule.idempotency",
+        "statement": "If clientRequestId is present and previously seen, the original response is replayed; no duplicate ledger entries.",
+        "kind": "invariant",
+        "enforcedBy": "idempotency table PK on client_request_id"
+      },
+      {
+        "id": "rule.positiveAmount",
+        "statement": "Ledger entry amount is strictly positive; sign is encoded in the direction column.",
+        "kind": "constraint",
+        "enforcedBy": "SQLite CHECK (amount > 0)"
+      }
+    ]
+  },
+  "refs": {
+    "dmnDecisionKeys": ["openBanking.transferEligibility"],
+    "viewIds": ["open-banking.OV-5b"]
+  },
+  "version": 1
+}

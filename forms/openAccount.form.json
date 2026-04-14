@@ -1,0 +1,46 @@
+{
+  "$schema": "https://gftd.ai/schemas/camunda-form/v1",
+  "formKey": "openBanking.openAccount.v1",
+  "name": "Open Account",
+  "version": 1,
+  "lexiconRef": "ai.gftd.apps.openBanking.createAccount",
+  "components": [
+    {
+      "key": "ownerDid",
+      "label": "Owner DID",
+      "type": "textfield",
+      "validate": { "required": true, "pattern": "^did:[a-z]+:.+" },
+      "description": "Account holder DID"
+    },
+    {
+      "key": "accountType",
+      "label": "Account type",
+      "type": "select",
+      "validate": { "required": true },
+      "values": [
+        { "label": "Checking", "value": "checking" },
+        { "label": "Savings", "value": "savings" },
+        { "label": "Custody", "value": "custody" }
+      ]
+    },
+    {
+      "key": "currency",
+      "label": "Currency (ISO 4217)",
+      "type": "textfield",
+      "validate": { "required": true, "pattern": "^[A-Z]{3}$" },
+      "defaultValue": "JPY"
+    },
+    {
+      "key": "displayName",
+      "label": "Display name",
+      "type": "textfield",
+      "validate": { "maxLength": 64 }
+    }
+  ],
+  "variableMappings": {
+    "ownerDid": "ownerDid",
+    "accountType": "accountType",
+    "currency": "currency",
+    "displayName": "displayName"
+  }
+}

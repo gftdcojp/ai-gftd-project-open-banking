@@ -1,0 +1,53 @@
+{
+  "viewId": "open-banking.SV-1",
+  "viewType": "SV-1",
+  "title": "Systems Interface Description",
+  "did": "did:web:open-banking.gftd.ai",
+  "format": "json",
+  "content": {
+    "systems": [
+      {
+        "id": "sys.worker",
+        "name": "open-banking Worker",
+        "platform": "Cloudflare Workers",
+        "entrypoint": "worker/src/app.ts",
+        "interfaces": [
+          { "id": "if.xrpc.createAccount",    "kind": "XRPC", "method": "POST", "nsid": "ai.gftd.apps.openBanking.createAccount" },
+          { "id": "if.xrpc.getAccount",       "kind": "XRPC", "method": "GET",  "nsid": "ai.gftd.apps.openBanking.getAccount" },
+          { "id": "if.xrpc.listAccounts",     "kind": "XRPC", "method": "GET",  "nsid": "ai.gftd.apps.openBanking.listAccounts" },
+          { "id": "if.xrpc.transfer",         "kind": "XRPC", "method": "POST", "nsid": "ai.gftd.apps.openBanking.transfer" },
+          { "id": "if.xrpc.listTransactions", "kind": "XRPC", "method": "GET",  "nsid": "ai.gftd.apps.openBanking.listTransactions" }
+        ]
+      },
+      {
+        "id": "sys.d1",
+        "name": "Cloudflare D1 (SQLite)",
+        "platform": "D1",
+        "tables": ["accounts", "ledger_entries", "idempotency"]
+      },
+      {
+        "id": "sys.pds",
+        "name": "atproto.gftd.ai PDS",
+        "platform": "Service binding",
+        "interfaces": [
+          { "id": "if.pds.post", "kind": "wRPC", "method": "app.bsky.feed.post" }
+        ]
+      },
+      {
+        "id": "sys.auth",
+        "name": "auth.gftd.ai",
+        "platform": "Service binding",
+        "interfaces": [
+          { "id": "if.auth.resolveCaller", "kind": "wRPC", "method": "resolveCallerDid" }
+        ]
+      }
+    ],
+    "connections": [
+      { "from": "sys.worker", "to": "sys.d1",   "protocol": "D1 binding" },
+      { "from": "sys.worker", "to": "sys.pds",  "protocol": "Service binding (wRPC)" },
+      { "from": "sys.worker", "to": "sys.auth", "protocol": "Service binding (wRPC)" }
+    ]
+  },
+  "refs": { "viewIds": ["open-banking.OV-1", "open-banking.CV-2"] },
+  "version": 1
+}

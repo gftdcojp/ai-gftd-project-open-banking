@@ -19,6 +19,34 @@
 // This file is the sole entrypoint (single-file principle). For monorepo
 // TS Native migration, swap the router with @gftd/magatama-host-sdk
 // createWorkerExport() and register commands via sdk.app.command().
+//
+// DoDAF v2.02 integration: GET /dodaf → index of deployed views,
+// GET /dodaf/{viewId} → view body. BPMN under /bpmn, DMN under /dmn, Camunda
+// forms under /forms. At cold start, dodafv2 views + Camunda forms are
+// pushed to PDS registries (ai.gftd.dodafv2.deployView / ai.gftd.form.register).
+
+import AV1 from "../../dodaf/AV-1.json";
+import OV1 from "../../dodaf/OV-1.json";
+import OV5b from "../../dodaf/OV-5b.json";
+import OV6a from "../../dodaf/OV-6a.json";
+import CV2 from "../../dodaf/CV-2.json";
+import SV1 from "../../dodaf/SV-1.json";
+import openAccountForm from "../../forms/openAccount.form.json";
+import transferForm from "../../forms/transfer.form.json";
+import { bootstrapDodaf } from "./dodaf-bootstrap";
+
+const DODAF_VIEWS: Record<string, any> = {
+  "open-banking.AV-1": AV1,
+  "open-banking.OV-1": OV1,
+  "open-banking.OV-5b": OV5b,
+  "open-banking.OV-6a": OV6a,
+  "open-banking.CV-2": CV2,
+  "open-banking.SV-1": SV1,
+};
+const FORMS: Record<string, any> = {
+  "openBanking.openAccount.v1": openAccountForm,
+  "openBanking.transfer.v1": transferForm,
+};
 
 export interface Env {
   BANK_DB: D1Database;
@@ -356,6 +384,8 @@ export default {
         return json({ ok: true, did: env.PRIMARY_DID, ts: now() });
       }
       if (url.pathname === "/_app/meta") {
+        // Fire-and-forget bootstrap to PDS registries; safe if PDS binding absent.
+        if (env.PDS) { try { await bootstrapDodaf(env as any); } catch {} }
         return json({
           did: env.PRIMARY_DID,
           handle: env.APP_HANDLE,
@@ -366,7 +396,34 @@ export default {
             "ai.gftd.apps.openBanking.transfer",
             "ai.gftd.apps.openBanking.listTransactions",
           ],
+          dodaf: Object.keys(DODAF_VIEWS),
+          forms: Object.keys(FORMS),
+          bpmn: ["openAccount", "transfer"],
+          dmn:  ["openBanking.transferEligibility"],
         });
+      }
+
+      // DoDAF view browsing (read-only)
+      if (url.pathname === "/dodaf") {
+        return json({
+          views: Object.entries(DODAF_VIEWS).map(([id, v]: [string, any]) => ({
+            viewId: id, viewType: v.viewType, title: v.title, version: v.version,
+          })),
+        });
+      }
+      if (url.pathname.startsWith("/dodaf/")) {
+        const id = decodeURIComponent(url.pathname.slice("/dodaf/".length));
+        const v = DODAF_VIEWS[id];
+        return v ? json(v) : err("InvalidRequest", `no such view: ${id}`, 404);
+      }
+      // Form browsing (Camunda form JSON)
+      if (url.pathname === "/forms") {
+        return json({ forms: Object.values(FORMS).map((f: any) => ({ formKey: f.formKey, name: f.name, version: f.version })) });
+      }
+      if (url.pathname.startsWith("/forms/")) {
+        const key = decodeURIComponent(url.pathname.slice("/forms/".length));
+        const f = FORMS[key];
+        return f ? json(f) : err("InvalidRequest", `no such form: ${key}`, 404);
       }
 
       if (!url.pathname.startsWith("/xrpc/")) {

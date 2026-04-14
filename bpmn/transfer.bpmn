@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  id="open-banking-transfer"
+                  targetNamespace="https://gftd.ai/bpmn/open-banking">
+  <bpmn:process id="transfer" name="Transfer Funds" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_Init" name="Transfer requested"/>
+    <bpmn:sequenceFlow id="f1" sourceRef="StartEvent_Init" targetRef="Task_CollectTransferForm"/>
+
+    <bpmn:userTask id="Task_CollectTransferForm" name="Collect transfer form"
+                   camunda:formKey="openBanking.transfer.v1"/>
+    <bpmn:sequenceFlow id="f2" sourceRef="Task_CollectTransferForm" targetRef="Task_Eligibility"/>
+
+    <bpmn:businessRuleTask id="Task_Eligibility" name="Transfer eligibility (DMN)"
+                           camunda:decisionRef="openBanking.transferEligibility"/>
+    <bpmn:sequenceFlow id="f3" sourceRef="Task_Eligibility" targetRef="Gateway_Eligible"/>
+
+    <bpmn:exclusiveGateway id="Gateway_Eligible" name="Eligible?" default="f4b"/>
+    <bpmn:sequenceFlow id="f4a" sourceRef="Gateway_Eligible" targetRef="Task_Settle">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${decision == "APPROVE"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="f4b" sourceRef="Gateway_Eligible" targetRef="EndEvent_Rejected"/>
+
+    <bpmn:serviceTask id="Task_Settle" name="ai.gftd.apps.openBanking.transfer"
+                      camunda:topic="ai.gftd.apps.openBanking.transfer"/>
+    <bpmn:sequenceFlow id="f5" sourceRef="Task_Settle" targetRef="Task_AuditPost"/>
+
+    <bpmn:serviceTask id="Task_AuditPost" name="Emit app.bsky.feed.post (large-tx audit)"
+                      camunda:topic="app.bsky.feed.post"/>
+    <bpmn:sequenceFlow id="f6" sourceRef="Task_AuditPost" targetRef="EndEvent_Settled"/>
+
+    <bpmn:endEvent id="EndEvent_Settled" name="Transfer settled"/>
+    <bpmn:endEvent id="EndEvent_Rejected" name="Rejected"/>
+  </bpmn:process>
+</bpmn:definitions>

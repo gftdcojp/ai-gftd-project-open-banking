@@ -1,0 +1,54 @@
+{
+  "$schema": "https://gftd.ai/schemas/camunda-form/v1",
+  "formKey": "openBanking.transfer.v1",
+  "name": "Transfer Funds",
+  "version": 1,
+  "lexiconRef": "ai.gftd.apps.openBanking.transfer",
+  "components": [
+    {
+      "key": "fromAccountDid",
+      "label": "From account DID",
+      "type": "textfield",
+      "validate": { "required": true, "pattern": "^did:web:open-banking\\.gftd\\.ai:account:.+" }
+    },
+    {
+      "key": "toAccountDid",
+      "label": "To account DID",
+      "type": "textfield",
+      "validate": { "required": true, "pattern": "^did:web:open-banking\\.gftd\\.ai:account:.+" }
+    },
+    {
+      "key": "amount",
+      "label": "Amount",
+      "type": "number",
+      "validate": { "required": true, "min": 0.01 }
+    },
+    {
+      "key": "currency",
+      "label": "Currency (ISO 4217)",
+      "type": "textfield",
+      "validate": { "required": true, "pattern": "^[A-Z]{3}$" },
+      "defaultValue": "JPY"
+    },
+    {
+      "key": "memo",
+      "label": "Memo",
+      "type": "textfield",
+      "validate": { "maxLength": 140 }
+    },
+    {
+      "key": "clientRequestId",
+      "label": "Idempotency key (UUID)",
+      "type": "textfield",
+      "validate": { "required": true, "pattern": "^[a-f0-9-]{8,}" }
+    }
+  ],
+  "variableMappings": {
+    "fromAccountDid": "fromAccountDid",
+    "toAccountDid": "toAccountDid",
+    "amount": "amount",
+    "currency": "currency",
+    "memo": "memo",
+    "clientRequestId": "clientRequestId"
+  }
+}

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  id="open-banking-open-account"
+                  targetNamespace="https://gftd.ai/bpmn/open-banking">
+  <bpmn:process id="openAccount" name="Open Account" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_Request" name="Account request received"/>
+
+    <bpmn:sequenceFlow id="f1" sourceRef="StartEvent_Request" targetRef="Task_CollectForm"/>
+
+    <bpmn:userTask id="Task_CollectForm" name="Collect account-opening form"
+                   camunda:formKey="openBanking.openAccount.v1"/>
+
+    <bpmn:sequenceFlow id="f2" sourceRef="Task_CollectForm" targetRef="Task_KYC"/>
+
+    <bpmn:serviceTask id="Task_KYC" name="KYC/AML screening"
+                      camunda:topic="ai.gftd.apps.openBanking.kycScreen"/>
+
+    <bpmn:sequenceFlow id="f3" sourceRef="Task_KYC" targetRef="Gateway_KycOk"/>
+
+    <bpmn:exclusiveGateway id="Gateway_KycOk" name="KYC passed?" default="f4b"/>
+
+    <bpmn:sequenceFlow id="f4a" sourceRef="Gateway_KycOk" targetRef="Task_CreateAccount">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${kycOk == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="f4b" sourceRef="Gateway_KycOk" targetRef="EndEvent_Rejected"/>
+
+    <bpmn:serviceTask id="Task_CreateAccount" name="ai.gftd.apps.openBanking.createAccount"
+                      camunda:topic="ai.gftd.apps.openBanking.createAccount"/>
+
+    <bpmn:sequenceFlow id="f5" sourceRef="Task_CreateAccount" targetRef="EndEvent_Opened"/>
+
+    <bpmn:endEvent id="EndEvent_Opened" name="Account opened"/>
+    <bpmn:endEvent id="EndEvent_Rejected" name="Rejected (KYC)"/>
+  </bpmn:process>
+</bpmn:definitions>

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/"
+             xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/"
+             xmlns:camunda="http://camunda.org/schema/1.0/dmn"
+             id="open-banking-transfer-eligibility"
+             name="Transfer Eligibility"
+             namespace="https://gftd.ai/dmn/open-banking">
+  <decision id="openBanking.transferEligibility" name="Transfer Eligibility">
+    <decisionTable id="dt_transferEligibility" hitPolicy="FIRST">
+      <input id="i_fromStatus" label="fromStatus">
+        <inputExpression typeRef="string"><text>fromStatus</text></inputExpression>
+      </input>
+      <input id="i_toStatus" label="toStatus">
+        <inputExpression typeRef="string"><text>toStatus</text></inputExpression>
+      </input>
+      <input id="i_currencyMatch" label="currencyMatch">
+        <inputExpression typeRef="boolean"><text>currencyMatch</text></inputExpression>
+      </input>
+      <input id="i_balanceOk" label="balanceOk">
+        <inputExpression typeRef="boolean"><text>balanceOk</text></inputExpression>
+      </input>
+      <input id="i_amount" label="amount">
+        <inputExpression typeRef="number"><text>amount</text></inputExpression>
+      </input>
+
+      <output id="o_decision" label="decision" name="decision" typeRef="string"/>
+      <output id="o_reason" label="reason" name="reason" typeRef="string"/>
+      <output id="o_requireStepUp" label="requireStepUp" name="requireStepUp" typeRef="boolean"/>
+
+      <rule id="r1">
+        <inputEntry><text>not("active")</text></inputEntry>
+        <inputEntry><text>-</text></inputEntry>
+        <inputEntry><text>-</text></inputEntry>
+        <inputEntry><text>-</text></inputEntry>
+        <inputEntry><text>-</text></inputEntry>
+        <outputEntry><text>"REJECT"</text></outputEntry>
+        <outputEntry><text>"AccountFrozen (source)"</text></outputEntry>
+        <outputEntry><text>false</text></outputEntry>
+      </rule>
+      <rule id="r2">
+        <inputEntry><text>-</text></inputEntry>
+        <inputEntry><text>not("active")</text></inputEntry>
+        <inputEntry><text>-</text></inputEntry>
+        <inputEntry><text>-</text></inputEntry>
+        <inputEntry><text>-</text></inputEntry>
+        <outputEntry><text>"REJECT"</text></outputEntry>
+        <outputEntry><text>"AccountFrozen (destination)"</text></outputEntry>
+        <outputEntry><text>false</text></outputEntry>
+      </rule>
+      <rule id="r3">
+        <inputEntry><text>-</text></inputEntry>
+        <inputEntry><text>-</text></inputEntry>
+        <inputEntry><text>false</text></inputEntry>
+        <inputEntry><text>-</text></inputEntry>
+        <inputEntry><text>-</text></inputEntry>
+        <outputEntry><text>"REJECT"</text></outputEntry>
+        <outputEntry><text>"CurrencyMismatch"</text></outputEntry>
+        <outputEntry><text>false</text></outputEntry>
+      </rule>
+      <rule id="r4">
+        <inputEntry><text>-</text></inputEntry>
+        <inputEntry><text>-</text></inputEntry>
+        <inputEntry><text>-</text></inputEntry>
+        <inputEntry><text>false</text></inputEntry>
+        <inputEntry><text>-</text></inputEntry>
+        <outputEntry><text>"REJECT"</text></outputEntry>
+        <outputEntry><text>"InsufficientFunds"</text></outputEntry>
+        <outputEntry><text>false</text></outputEntry>
+      </rule>
+      <rule id="r5">
+        <inputEntry><text>"active"</text></inputEntry>
+        <inputEntry><text>"active"</text></inputEntry>
+        <inputEntry><text>true</text></inputEntry>
+        <inputEntry><text>true</text></inputEntry>
+        <inputEntry><text>&gt;= 1000000</text></inputEntry>
+        <outputEntry><text>"APPROVE"</text></outputEntry>
+        <outputEntry><text>"Large transfer — step-up required"</text></outputEntry>
+        <outputEntry><text>true</text></outputEntry>
+      </rule>
+      <rule id="r6">
+        <inputEntry><text>"active"</text></inputEntry>
+        <inputEntry><text>"active"</text></inputEntry>
+        <inputEntry><text>true</text></inputEntry>
+        <inputEntry><text>true</text></inputEntry>
+        <inputEntry><text>-</text></inputEntry>
+        <outputEntry><text>"APPROVE"</text></outputEntry>
+        <outputEntry><text>"OK"</text></outputEntry>
+        <outputEntry><text>false</text></outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+</definitions>

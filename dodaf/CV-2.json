@@ -1,0 +1,46 @@
+{
+  "viewId": "open-banking.CV-2",
+  "viewType": "CV-2",
+  "title": "Capability Taxonomy",
+  "did": "did:web:open-banking.gftd.ai",
+  "format": "json",
+  "content": {
+    "capabilities": [
+      {
+        "id": "cap.accountLifecycle",
+        "name": "Account lifecycle management",
+        "children": [
+          { "id": "cap.accountOpen",   "name": "Account open",   "realisedBy": "ai.gftd.apps.openBanking.createAccount" },
+          { "id": "cap.accountQuery",  "name": "Account query",  "realisedBy": "ai.gftd.apps.openBanking.getAccount" },
+          { "id": "cap.accountList",   "name": "Account list",   "realisedBy": "ai.gftd.apps.openBanking.listAccounts" }
+        ]
+      },
+      {
+        "id": "cap.ledger",
+        "name": "Double-entry ledger",
+        "children": [
+          { "id": "cap.doubleEntry",  "name": "Atomic double-entry posting", "realisedBy": "worker/src/app.ts:transfer()" },
+          { "id": "cap.derivedBalance","name": "Derived balance",            "realisedBy": "worker/src/app.ts:balanceOf()" }
+        ]
+      },
+      {
+        "id": "cap.transfer",
+        "name": "Transfer",
+        "children": [
+          { "id": "cap.transferSubmit",   "name": "Submit transfer",        "realisedBy": "ai.gftd.apps.openBanking.transfer" },
+          { "id": "cap.transferRules",    "name": "Eligibility decisioning","realisedBy": "openBanking.transferEligibility (DMN)" },
+          { "id": "cap.transferIdempotent","name": "Idempotent replay",     "realisedBy": "idempotency table" }
+        ]
+      },
+      {
+        "id": "cap.history",
+        "name": "Transaction history",
+        "children": [
+          { "id": "cap.listTx", "name": "List transactions", "realisedBy": "ai.gftd.apps.openBanking.listTransactions" }
+        ]
+      }
+    ]
+  },
+  "refs": { "viewIds": ["open-banking.OV-5b", "open-banking.SV-1"] },
+  "version": 1
+}

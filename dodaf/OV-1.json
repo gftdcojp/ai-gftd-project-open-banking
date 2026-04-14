@@ -1,0 +1,25 @@
+{
+  "viewId": "open-banking.OV-1",
+  "viewType": "OV-1",
+  "title": "High-Level Operational Concept Graphic",
+  "did": "did:web:open-banking.gftd.ai",
+  "format": "json",
+  "content": {
+    "operationalNodes": [
+      { "id": "client",   "label": "Client (browser/agent/CLI)" },
+      { "id": "bank",     "label": "open-banking.gftd.ai (Worker)" },
+      { "id": "ledger",   "label": "D1 ledger (SSoT)" },
+      { "id": "pds",      "label": "atproto.gftd.ai (PDS, public audit)" },
+      { "id": "counterparty", "label": "Counterparty DID" }
+    ],
+    "operationalFlows": [
+      { "from": "client",       "to": "bank",   "label": "XRPC (createAccount / transfer / query)" },
+      { "from": "bank",         "to": "ledger", "label": "atomic double-entry write" },
+      { "from": "bank",         "to": "pds",    "label": "app.bsky.feed.post (large-tx audit)" },
+      { "from": "counterparty", "to": "bank",   "label": "receive credit" }
+    ],
+    "narrative": "A DID-identified client issues a signed XRPC call. The Worker validates against the DMN eligibility decision, writes debit+credit atomically to D1, and emits an auditable social post for notable events. Balance is never stored — it is derived from the ledger on every read."
+  },
+  "refs": { "viewIds": ["open-banking.SV-1", "open-banking.OV-5b"] },
+  "version": 1
+}

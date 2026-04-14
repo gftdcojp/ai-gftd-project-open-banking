@@ -1,0 +1,33 @@
+{
+  "viewId": "open-banking.AV-1",
+  "viewType": "AV-1",
+  "title": "Overview and Summary Information",
+  "did": "did:web:open-banking.gftd.ai",
+  "format": "json",
+  "content": {
+    "purpose": "Provide a DID-addressed core-banking service (account + double-entry ledger + transfer) as an auditable, open-source reference implementation.",
+    "scope": {
+      "in": ["account lifecycle", "double-entry ledger", "intra-bank transfer", "transaction history"],
+      "out": ["card/wire/SWIFT rails", "FX", "AML/sanctions", "interest accrual", "statements"]
+    },
+    "architectureDescriptionContext": {
+      "mission": "Provide tamper-evident, DID-native banking primitives open to any AT Protocol client.",
+      "stakeholders": ["account holders (DIDs)", "operators", "auditors", "regulators (future)"],
+      "environment": "Cloudflare Workers + D1 (edge globally distributed)",
+      "standards": ["AT Protocol XRPC", "DoDAF v2.02", "BPMN 2.0", "DMN 1.3", "Camunda Forms", "ISO 4217"]
+    },
+    "toolsAndMethods": [
+      "XRPC Lexicons for external contracts (ai.gftd.apps.openBanking.*)",
+      "BPMN 2.0 for process definition (openAccount, transfer)",
+      "DMN 1.3 for decision rules (transferEligibility)",
+      "Camunda Forms for human-task UI",
+      "OCEL 2.0 for process-mining audit trail (future)"
+    ],
+    "findings": "MVP proven. Balance-by-derivation eliminates stored-balance race; D1 batch() guarantees atomic double-entry.",
+    "recommendations": "Step-up WebAuthn on large transfers (driven by DMN requireStepUp output). Add sanctions screening service task before Task_Settle."
+  },
+  "refs": {
+    "viewIds": ["open-banking.OV-1", "open-banking.OV-5b", "open-banking.OV-6a", "open-banking.CV-2", "open-banking.SV-1"]
+  },
+  "version": 1
+}
