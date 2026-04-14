@@ -1,0 +1,48 @@
+{
+  "lexicon": 1,
+  "id": "ai.gftd.apps.openBanking.transfer",
+  "defs": {
+    "main": {
+      "type": "procedure",
+      "description": "Transfer funds between two accounts. Atomic double-entry: debit source, credit destination. Enforces same currency, sufficient balance, active status. Idempotent via clientRequestId.",
+      "input": {
+        "encoding": "application/json",
+        "schema": {
+          "type": "object",
+          "required": ["fromAccountDid", "toAccountDid", "amount", "currency"],
+          "properties": {
+            "fromAccountDid": { "type": "string", "format": "did" },
+            "toAccountDid": { "type": "string", "format": "did" },
+            "amount": { "type": "number", "minimum": 0, "exclusiveMinimum": true },
+            "currency": { "type": "string" },
+            "memo": { "type": "string", "maxLength": 140 },
+            "clientRequestId": { "type": "string", "description": "Idempotency key (uuid)" }
+          }
+        }
+      },
+      "output": {
+        "encoding": "application/json",
+        "schema": {
+          "type": "object",
+          "required": ["transactionId", "status", "debitEntryId", "creditEntryId", "executedAt"],
+          "properties": {
+            "transactionId": { "type": "string" },
+            "status": { "type": "string", "enum": ["settled", "pending", "rejected"] },
+            "debitEntryId": { "type": "string" },
+            "creditEntryId": { "type": "string" },
+            "fromBalanceAfter": { "type": "number" },
+            "toBalanceAfter": { "type": "number" },
+            "executedAt": { "type": "string", "format": "datetime" }
+          }
+        }
+      },
+      "errors": [
+        { "name": "InsufficientFunds" },
+        { "name": "CurrencyMismatch" },
+        { "name": "AccountFrozen" },
+        { "name": "AccountNotFound" },
+        { "name": "DuplicateRequest" }
+      ]
+    }
+  }
+}

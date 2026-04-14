@@ -1,0 +1,50 @@
+{
+  "lexicon": 1,
+  "id": "ai.gftd.apps.openBanking.listTransactions",
+  "defs": {
+    "main": {
+      "type": "query",
+      "description": "List ledger transactions for an account. Returns chronological double-entry view (debit negative, credit positive from the account's perspective).",
+      "parameters": {
+        "type": "params",
+        "required": ["accountDid"],
+        "properties": {
+          "accountDid": { "type": "string", "format": "did" },
+          "since": { "type": "string", "format": "datetime" },
+          "until": { "type": "string", "format": "datetime" },
+          "limit": { "type": "integer", "minimum": 1, "maximum": 200, "default": 50 },
+          "offset": { "type": "integer", "minimum": 0, "default": 0 }
+        }
+      },
+      "output": {
+        "encoding": "application/json",
+        "schema": {
+          "type": "object",
+          "required": ["transactions", "total", "offset", "limit"],
+          "properties": {
+            "transactions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "entryId": { "type": "string" },
+                  "transactionId": { "type": "string" },
+                  "direction": { "type": "string", "enum": ["debit", "credit"] },
+                  "amount": { "type": "number" },
+                  "currency": { "type": "string" },
+                  "counterpartyDid": { "type": "string", "format": "did" },
+                  "memo": { "type": "string" },
+                  "balanceAfter": { "type": "number" },
+                  "occurredAt": { "type": "string", "format": "datetime" }
+                }
+              }
+            },
+            "total": { "type": "integer" },
+            "offset": { "type": "integer" },
+            "limit": { "type": "integer" }
+          }
+        }
+      }
+    }
+  }
+}

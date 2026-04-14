@@ -1,0 +1,55 @@
+{
+  "@context": "https://gftd.ai/ns/magatama/v1",
+  "@id": "did:web:open-banking.gftd.ai",
+  "name": "open-banking",
+  "handle": "open-banking.gftd.ai",
+  "performerType": "service",
+  "runtimeType": "worker",
+  "project": "open-banking",
+  "convoSystemPrompt": "You are the GFTD Open Banking agent. You manage bank accounts, double-entry ledger transactions, and transfers for holders whose identity is a DID. Follow PSD2-like open-banking safety rules: strong auth, idempotent transfers, atomic settlement, tamper-evident ledger.",
+  "governance": {
+    "raci": "responsible",
+    "classification": "pii-tier3",
+    "complianceFrameworks": ["psd2-like", "double-entry-ledger", "gftd-finops-policy"]
+  },
+  "profile": {
+    "displayName": "GFTD Open Banking",
+    "description": "Open-source core-banking reference implementation — double-entry ledger + DID-addressed accounts + PSD2-like XRPC API.",
+    "avatar": "🏦",
+    "category": "fintech",
+    "isBot": true,
+    "operator": "gftd.co.jp",
+    "agentType": "autonomous",
+    "capabilities": [
+      "account-open",
+      "account-query",
+      "double-entry-ledger",
+      "transfer",
+      "transaction-history"
+    ]
+  },
+  "triggers": {
+    "subscribeRepos": {
+      "collections": [
+        "app.bsky.feed.post",
+        "ai.gftd.apps.openBanking.account",
+        "ai.gftd.apps.openBanking.ledgerEntry",
+        "ai.gftd.apps.openBanking.transaction"
+      ]
+    }
+  },
+  "space": {
+    "name": "GFTD Open Banking",
+    "description": "Open-source core-banking reference implementation",
+    "joinRule": "public",
+    "historyVisibility": "world-readable",
+    "convos": [
+      {
+        "name": "bank-ops",
+        "kind": "public",
+        "description": "Public operational events (openings, large transfers, postings)",
+        "default": true
+      }
+    ]
+  }
+}

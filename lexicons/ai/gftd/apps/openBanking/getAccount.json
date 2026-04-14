@@ -1,0 +1,35 @@
+{
+  "lexicon": 1,
+  "id": "ai.gftd.apps.openBanking.getAccount",
+  "defs": {
+    "main": {
+      "type": "query",
+      "description": "Get account details + current balance (computed from ledger double-entry sum).",
+      "parameters": {
+        "type": "params",
+        "required": ["accountDid"],
+        "properties": {
+          "accountDid": { "type": "string", "format": "did" }
+        }
+      },
+      "output": {
+        "encoding": "application/json",
+        "schema": {
+          "type": "object",
+          "required": ["accountDid", "accountNumber", "ownerDid", "accountType", "currency", "status", "balance", "openedAt"],
+          "properties": {
+            "accountDid": { "type": "string", "format": "did" },
+            "accountNumber": { "type": "string" },
+            "ownerDid": { "type": "string", "format": "did" },
+            "accountType": { "type": "string" },
+            "currency": { "type": "string" },
+            "status": { "type": "string" },
+            "balance": { "type": "number" },
+            "displayName": { "type": "string" },
+            "openedAt": { "type": "string", "format": "datetime" }
+          }
+        }
+      }
+    }
+  }
+}

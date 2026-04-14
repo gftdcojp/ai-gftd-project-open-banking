@@ -1,0 +1,38 @@
+{
+  "lexicon": 1,
+  "id": "ai.gftd.apps.openBanking.createAccount",
+  "defs": {
+    "main": {
+      "type": "procedure",
+      "description": "Open a new bank account. Returns the account DID (path-based) and initial state. Double-entry ledger opening balance = 0.",
+      "input": {
+        "encoding": "application/json",
+        "schema": {
+          "type": "object",
+          "required": ["ownerDid", "accountType", "currency"],
+          "properties": {
+            "ownerDid": { "type": "string", "format": "did", "description": "Account holder DID (natural person or legal entity)" },
+            "accountType": { "type": "string", "enum": ["checking", "savings", "custody"] },
+            "currency": { "type": "string", "description": "ISO 4217 (JPY, USD, EUR, ...)" },
+            "displayName": { "type": "string", "maxLength": 64 }
+          }
+        }
+      },
+      "output": {
+        "encoding": "application/json",
+        "schema": {
+          "type": "object",
+          "required": ["accountDid", "accountNumber", "status", "openedAt"],
+          "properties": {
+            "accountDid": { "type": "string", "format": "did" },
+            "accountNumber": { "type": "string" },
+            "status": { "type": "string", "enum": ["active", "frozen", "closed"] },
+            "balance": { "type": "number" },
+            "currency": { "type": "string" },
+            "openedAt": { "type": "string", "format": "datetime" }
+          }
+        }
+      }
+    }
+  }
+}

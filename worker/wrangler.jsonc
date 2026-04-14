@@ -1,0 +1,28 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ai-gftd-open-banking",
+  "main": "src/app.ts",
+  "compatibility_date": "2026-04-15",
+  "compatibility_flags": ["nodejs_compat"],
+  "account_id": "${CF_ACCOUNT_ID}",
+  "workers_dev": false,
+  "routes": [
+    { "pattern": "open-banking.gftd.ai/*", "zone_name": "gftd.ai" }
+  ],
+  "d1_databases": [
+    {
+      "binding": "BANK_DB",
+      "database_name": "ai-gftd-open-banking",
+      "database_id": "${OPEN_BANKING_D1_ID}"
+    }
+  ],
+  "services": [
+    { "binding": "PDS", "service": "ai-gftd-atproto" },
+    { "binding": "AUTH_SERVICE", "service": "ai-gftd-auth" }
+  ],
+  "vars": {
+    "APP_HANDLE": "open-banking.gftd.ai",
+    "PRIMARY_DID": "did:web:open-banking.gftd.ai"
+  },
+  "observability": { "enabled": true }
+}
